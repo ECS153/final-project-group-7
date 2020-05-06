@@ -8,4 +8,4 @@ Then, we'll proceed to chain analysis on Scalable Chain Infrastructure VulnerabI
 
 
 Next, we'll expand our research area to more applications related to security of blockchain such as reentrency bugs in ethereum or trying to come up with some interesting consensus. 
-For the consensus part, 
+For the bug analysis, we can look into some attacks on solidity smart contracts and understand the flaws in early design of solidity. The infamous DAO attack carried out couple of years ago, for example, is a good entrance for us to begin our step. Many other attacks are valuable topics for use to learn, like the arithmetic overflow attacks or denial of services. We can use Remix-IDE to simulate these attacks. For the consensus part, if we still have time at this point, we can try to improve the bitcoin simulator we built and revise the mining mechanism such that it will rely on things other than CPU computing power. By chaning consensus of power of work into something else more applicable to students' needs, we can figure out a way to make innovative usage of this blockchain techonology.
