@@ -1,3 +1,3 @@
 Our goal is to analyze and implement some classic problems and their aspects in the fields of blockchain.
 To get familiar with blockchain technology and its basic concepts, we're first trying to build a bitcoin simulator
-which is based on server-client model.
+which is based on server-client model. The server will act as a broadcasting hub and a chatting app which will redirect any messgaes or transactions to the any client connected to the port. The transaction messages are encrypted with RSA or ECDSA signature, and other clients can verify the mined new block or transaction message, putting them into their own distributed accounting chain.
