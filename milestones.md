@@ -1,6 +1,6 @@
 # Milestone 1
 
-Haoyang Li:
+Haoyang Li: Last week, I participated in designing the architecture of the bitcoin simulator and improving/debugging some of the codes. Next week, I'll start writing some simple test cases for Go analyzer (i.e., some Go code snippet with blockchain security vulnerabilities) and maybe start working on implementing the analyzer. Right now, I'm a little bit stuck on deciding which method we should use to implement the analyzer (using existing tools such as CodeQL vs. implementing one with Go complier's intermediate representation such as SSA form).
 
 Wenhao Su:
 
