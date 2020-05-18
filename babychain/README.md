@@ -1,6 +1,9 @@
 # babychain
 baby shitcoin simulator: applied cryptography + socket programming + GUI programming
 
+### Requirement
+pip install pycryptodome
+
 ### Set Up
 first initialize the broadcast server using command `python ./server.py -p <port_number> -ip <ip_of_your_server>`
 Then run client apps using command `python ./client.py -p <port_number> -ip <ip_of_your_server>`
