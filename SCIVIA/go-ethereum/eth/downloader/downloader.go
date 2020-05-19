@@ -1808,10 +1808,6 @@ func (d *Downloader) qosTuner() {
 func (d *Downloader) qosReduceConfidence() {
 	// If we have a single peer, confidence is always 1
 	peers := uint64(d.peers.Len())
-	if peers == 0 {
-		// Ensure peer connectivity races don't catch us off guard
-		return
-	}
 	if peers == 1 {
 		atomic.StoreUint64(&d.rttConfidence, 1000000)
 		return
@@ -1821,7 +1817,7 @@ func (d *Downloader) qosReduceConfidence() {
 		return
 	}
 	// Otherwise drop the confidence factor
-	conf := atomic.LoadUint64(&d.rttConfidence) * (peers - 1) / peers
+	conf := atomic.LoadUint64(&d.rttConfidence) * (peers - 1) / peers  // SCIVIA: potential divide-by-zero
 	if float64(conf)/1000000 < rttMinConfidence {
 		conf = uint64(rttMinConfidence * 1000000)
 	}
