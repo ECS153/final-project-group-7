@@ -483,7 +483,7 @@ func readHandshakeMsg(msg plainDecoder, plainSize int, prv *ecdsa.PrivateKey, r 
 	if size < uint16(plainSize) {
 		return buf, fmt.Errorf("size underflow, need at least %d bytes", plainSize)
 	}
-	buf = append(buf, make([]byte, size-uint16(plainSize)+2)...)
+	buf = append(buf, make([]byte, size-uint16(plainSize)+2)...)  // SCIVIA: user-controlled allocation of 65KB
 	if _, err := io.ReadFull(r, buf[plainSize:]); err != nil {
 		return buf, err
 	}
@@ -657,7 +657,7 @@ func (rw *rlpxFrameRW) ReadMsg() (msg Msg, err error) {
 	if padding := fsize % 16; padding > 0 {
 		rsize += 16 - padding
 	}
-	framebuf := make([]byte, rsize)
+	framebuf := make([]byte, rsize)  // SCIVIA: user-controlled allocation of 16.8MB
 	if _, err := io.ReadFull(rw.conn, framebuf); err != nil {
 		return msg, err
 	}
