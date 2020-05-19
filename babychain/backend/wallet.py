@@ -70,11 +70,16 @@ class Wallet:
         txn_message = parsed[0]
         sender_public_key_string = parsed[1]
         signature_string = parsed[2]
+
+        sender_balance = self.check_others_balance(sender_public_key_string)
+        if sender_balance < 0:
+            return "The sender has insufficient balance!"
+
         if self.block_chain.verify_transaction_signature(txn_message, sender_public_key_string, signature_string):
             msg = "a node has verified new transaction"
             return msg
 
-        return "This transaction is invalid!"
+        return "This transaction is unauthorized!"
 
     def get_balance(self):
         balance = 0
@@ -91,3 +96,18 @@ class Wallet:
             raise ValueError("Balance Smaller than 0")
         return balance
 
+    def check_others_balance(self, target_addr):
+        balance = 0
+        for block in self.block_chain.blocks:
+            if block['miner'] == target_addr:
+                balance += REWARD
+            transactions = block['txn']
+            for each_txn in transactions:
+                if each_txn['sender'] == target_addr:
+                    balance -= each_txn['value']
+                if each_txn['receiver'] == target_addr:
+                    balance += each_txn['value']
+        return balance
+
+    def revert(self):
+        self.block_chain.revert()
