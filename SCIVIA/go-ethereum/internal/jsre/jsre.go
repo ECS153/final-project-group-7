@@ -87,7 +87,7 @@ func randomSource() *rand.Rand {
 	bytes := make([]byte, 8)
 	seed := time.Now().UnixNano()
 	if _, err := crand.Read(bytes); err == nil {
-		seed = int64(binary.LittleEndian.Uint64(bytes))
+		seed = int64(binary.LittleEndian.Uint64(bytes))  // SCIVIA: weak seed in PRNG
 	}
 
 	src := rand.NewSource(seed)
