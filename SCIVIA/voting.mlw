@@ -1,0 +1,1837 @@
+
+module EVMState
+
+	use list.List
+	use why_evm.Word
+  use why_evm.State
+  use list.NthNoOpt as Nth
+  use why_evm.State as Why3State
+  use int.Int
+  use bool.Bool
+
+  type evmState = Why3State.t
+
+  let evmStateInit = Why3State.init_state
+
+  let function lp (s : evmState) (p : list int) : evmState
+	= { s with cd = p }
+	
+	let ghost function ur (s : evmState) : int
+  = Nth.nth 0 s.sk
+  
+  let ghost function getParam (s : evmState) (i : int) : int
+    = let params = s.cd in
+    Nth.nth i params
+    
+  let function setRet (s : evmState) (v : int) : evmState
+    = { s with sk = Cons v Nil }
+    
+  let ghost function getRet (s : evmState) (i : int) : int
+    = let params = s.cd in
+    Nth.nth i params
+
+  let ghost function runState (st: evmState) : int
+  = 
+  ur st
+
+  let function i2b (i: int) : bool
+  = if i = 0 then false else true
+
+  let function b2i (b: bool) : int
+  = if b then 1 else 0
+
+end
+
+module TS
+  use int.Int
+  use ref.Ref
+  use map.Map
+  use array.Array
+  use list.List
+  use int.ComputerDivision
+  use mach.int.Unsigned
+  clone EVMState
+
+  
+  use why_evm.Word as BV64
+  use why_evm.Instructions as Why3Inst
+  use why_evm.State as Why3State
+  use why_evm.Helpers as Why3H
+
+  exception Ret
+
+  let function a (i: int) : int
+    ensures {result = 2}
+  =
+    1
+    
+
+  let ghost function zero_value_for_split_t_array__t_address__dyn_memory_ptr (st_c: evmState)  : evmState
+   ensures { 0 <= runState result <= 255 }
+   ensures { runState result = 96 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+    let rv = 96 in
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function zero_value_for_split_t_address (st_c: evmState)  : evmState
+   ensures { 0 <= runState result <= 255 }
+   ensures { runState result = 0 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+    let rv = bvconstzero in
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function zero_memory_chunk_t_address (st_c: evmState)  (dataStart: int)  (dataSizeInBytes: int) : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g)  List.Nil; 
+    st_g := Why3Inst.calldatasize (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+    st_g := lp (! st_g) (List.Cons (dataStart) (List.Cons (tp) (List.Cons (dataSizeInBytes) List.Nil))); 
+    st_g := Why3Inst.calldatacopy (! st_g); 
+    let rv = ur (! st_g) in 
+    ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function shift_right_0_unsigned (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (value) List.Nil)); 
+    st_g := Why3Inst.shr (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function shift_left_dynamic (st_c: evmState)  (bits: int)  (value: int) : evmState
+  requires { 0 <= bits <= 255 }
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (bits) (List.Cons (value) List.Nil)); 
+    st_g := Why3Inst.shl (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function shift_left_0 (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (value) List.Nil)); 
+    st_g := Why3Inst.shl (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function require_helper (st_c: evmState)  (condition: int) : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (condition) List.Nil); 
+    st_g := Why3Inst.iszero (! st_g); 
+    let rv = ur (! st_g) in 
+
+    (if i2b rv 
+    then
+      (
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (bvconstzero) List.Nil)); 
+        st_g := Why3Inst.revert (! st_g); 
+        let rv = ur (! st_g) in 
+();      ); );
+
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function prepare_store_t_uint256 (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+    let rv = value in
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function prepare_store_t_address (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+    let rv = value in
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function cleanup_t_uint160 (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (value) (List.Cons (0xffffffffffffffffffffffffffffffffffffffff) List.Nil)); 
+    st_g := Why3Inst.and (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function cleanup_from_storage_t_uint256 (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+    let rv = value in
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function cleanup_from_storage_t_address (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (value) (List.Cons (0xffffffffffffffffffffffffffffffffffffffff) List.Nil)); 
+    st_g := Why3Inst.and (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function array_length_t_array__t_address__dyn_memory_ptr (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (value) List.Nil); 
+    st_g := Why3Inst.mload (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function array_allocation_size_t_array__t_address__dyn_memory_ptr (st_c: evmState)  (length: int) : evmState
+  requires { 0 <= length <= 255 }
+  ensures {runState result = length * 32 + 32}
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (length) (List.Cons (0xffffffffffffffff) List.Nil)); 
+    st_g := Why3Inst.gt (! st_g); 
+    let rv = ur (! st_g) in 
+
+    (if i2b rv 
+    then
+      (
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (bvconstzero) List.Nil)); 
+        st_g := Why3Inst.revert (! st_g); 
+        let rv = ur (! st_g) in 
+();      ); );
+
+        st_g := lp (! st_g) (List.Cons (length) (List.Cons (0x20) List.Nil)); 
+    st_g := Why3Inst.mul (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+        st_g := lp (! st_g) (List.Cons (!_r) (List.Cons (0x20) List.Nil)); 
+    st_g := Why3Inst.add (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function allocateMemory (st_c: evmState)  (size: int) : evmState
+  requires { 0 <= size <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (64) List.Nil); 
+    st_g := Why3Inst.mload (! st_g); 
+    let rv = ur (! st_g) in 
+    assume { 0 <= rv <= 255};
+    _r := rv;
+            st_g := lp (! st_g) (List.Cons (!_r) (List.Cons (size) List.Nil)); 
+    st_g := Why3Inst.add (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+
+    let newFreePtr = rv in
+        st_g := lp (! st_g) (List.Cons (newFreePtr) (List.Cons (0xffffffffffffffff) List.Nil)); 
+    st_g := Why3Inst.gt (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := lp (! st_g) (List.Cons (newFreePtr) (List.Cons (!_r) List.Nil)); 
+    st_g := Why3Inst.lt (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp1 = rv in
+        st_g := lp (! st_g) (List.Cons (tp) (List.Cons (tp1) List.Nil)); 
+    st_g := Why3Inst.or (! st_g); 
+    let rv = ur (! st_g) in 
+
+    (if i2b rv 
+    then
+      (
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (bvconstzero) List.Nil)); 
+        st_g := Why3Inst.revert (! st_g); 
+        let rv = ur (! st_g) in 
+();      ); );
+
+    st_g := lp (! st_g) (List.Cons (64) (List.Cons (newFreePtr) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+    ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function abi_decode_tuple__fromMemory (st_c: evmState)  (headStart: int)  (dataEnd: int) : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+     st_g := lp (! st_g) (List.Cons (dataEnd) (List.Cons (headStart) List.Nil)); 
+    st_g := Why3Inst.sub (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+        st_g := lp (! st_g) (List.Cons (   rv
+) (List.Cons (bvconstzero) List.Nil)); 
+    st_g := Why3Inst.slt (! st_g); 
+    let rv = ur (! st_g) in 
+
+    (if i2b rv 
+    then
+      (
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (bvconstzero) List.Nil)); 
+        st_g := Why3Inst.revert (! st_g); 
+        let rv = ur (! st_g) in 
+();      ); );
+
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function update_byte_slice_dynamic20 (st_c: evmState)  (value: int)  (shiftBytes: int)  (toInsert: int) : evmState
+  requires { 0 <= value <= 255 }
+  requires { 0 <= shiftBytes <= 255 }
+  requires { 0 <= toInsert <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+            st_g := lp (! st_g) (List.Cons (shiftBytes) (List.Cons (8) List.Nil)); 
+    st_g := Why3Inst.mul (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+
+    let shiftBits = rv in
+            st_g := (shift_left_dynamic  (! st_g) (shiftBits) (0xffffffffffffffffffffffffffffffffffffffff)); 
+    let rv = ur (! st_g) in 
+
+    let mask = rv in
+        st_g := (shift_left_dynamic  (! st_g) (shiftBits) (toInsert)); 
+    let rv = ur (! st_g) in 
+
+    let toInsert = rv in
+        st_g := lp (! st_g) (List.Cons (mask) List.Nil); 
+    st_g := Why3Inst.bw_not (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := lp (! st_g) (List.Cons (value) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.and (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let value = rv in
+        st_g := lp (! st_g) (List.Cons (toInsert) (List.Cons (mask) List.Nil)); 
+    st_g := Why3Inst.and (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := lp (! st_g) (List.Cons (value) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.or (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function update_byte_slice_32_shift_0 (st_c: evmState)  (value: int)  (toInsert: int) : evmState
+  requires { 0 <= value <= 255 }
+  requires { 0 <= toInsert <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        let rv = 0xffffffffffffffff in
+    let mask = rv in
+        st_g := (shift_left_0  (! st_g) (toInsert)); 
+    let rv = ur (! st_g) in 
+
+    let toInsert = rv in
+        st_g := lp (! st_g) (List.Cons (mask) List.Nil); 
+    st_g := Why3Inst.bw_not (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := lp (! st_g) (List.Cons (value) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.and (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let value = rv in
+        st_g := lp (! st_g) (List.Cons (toInsert) (List.Cons (mask) List.Nil)); 
+    st_g := Why3Inst.and (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := lp (! st_g) (List.Cons (value) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.or (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function update_byte_slice_20_shift_0 (st_c: evmState)  (value: int)  (toInsert: int) : evmState
+  requires { 0 <= value <= 255 }
+  requires { 0 <= toInsert <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        let rv = 0xffffffffffffffffffffffffffffffffffffffff in
+    let mask = rv in
+        st_g := (shift_left_0  (! st_g) (toInsert)); 
+    let rv = ur (! st_g) in 
+
+    let toInsert = rv in
+        st_g := lp (! st_g) (List.Cons (mask) List.Nil); 
+    st_g := Why3Inst.bw_not (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := lp (! st_g) (List.Cons (value) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.and (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let value = rv in
+        st_g := lp (! st_g) (List.Cons (toInsert) (List.Cons (mask) List.Nil)); 
+    st_g := Why3Inst.and (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := lp (! st_g) (List.Cons (value) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.or (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function memory_array_index_access_t_array__t_address__dyn_memory_ptr (st_c: evmState)  (baseRef: int)  (index: int) : evmState
+  requires { 0 <= baseRef <= 255 }
+  requires { 0 <= index <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (array_length_t_array__t_address__dyn_memory_ptr  (! st_g) (baseRef)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := lp (! st_g) (List.Cons (index) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.lt (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp2 = rv in
+        st_g := lp (! st_g) (List.Cons (tp2) List.Nil); 
+    st_g := Why3Inst.iszero (! st_g); 
+    let rv = ur (! st_g) in 
+
+    (if i2b rv 
+    then
+      (
+        st_g := lp (! st_g)  List.Nil; 
+        st_g := Why3Inst.invalid (! st_g); 
+        let rv = ur (! st_g) in 
+();      ); );
+
+            st_g := lp (! st_g) (List.Cons (index) (List.Cons (32) List.Nil)); 
+    st_g := Why3Inst.mul (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+
+    let offset = rv in
+        st_g := lp (! st_g) (List.Cons (offset) (List.Cons (32) List.Nil)); 
+    st_g := Why3Inst.add (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+
+    let offset = rv in
+        st_g := lp (! st_g) (List.Cons (baseRef) (List.Cons (offset) List.Nil)); 
+    st_g := Why3Inst.add (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function extract_from_storage_value_offset_0t_uint256 (st_c: evmState)  (slot_value: int) : evmState
+  requires { 0 <= slot_value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (shift_right_0_unsigned  (! st_g) (slot_value)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := (cleanup_from_storage_t_uint256  (! st_g) (tp)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function extract_from_storage_value_offset_0t_address (st_c: evmState)  (slot_value: int) : evmState
+  requires { 0 <= slot_value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (shift_right_0_unsigned  (! st_g) (slot_value)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := (cleanup_from_storage_t_address  (! st_g) (tp)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function convert_t_uint160_to_t_uint160 (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (cleanup_t_uint160  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function cleanup_t_address (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (cleanup_t_uint160  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function allocate_and_zero_memory_array_t_array__t_address__dyn_memory_ptr (st_c: evmState)  (length: int) : evmState
+  requires { 0 <= length <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+            st_g := (array_allocation_size_t_array__t_address__dyn_memory_ptr  (! st_g) (length)); 
+    let rv = ur (! st_g) in 
+
+    let allocSize = rv in
+        st_g := (allocateMemory  (! st_g) (allocSize)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+        let rv = !_r in
+    let dataStart = rv in
+        let rv = allocSize in
+    let dataSize = rv in
+        st_g := lp (! st_g) (List.Cons (dataStart) (List.Cons (32) List.Nil)); 
+    st_g := Why3Inst.add (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+
+    let dataStart = rv in
+        st_g := lp (! st_g) (List.Cons (dataSize) (List.Cons (32) List.Nil)); 
+    st_g := Why3Inst.sub (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+
+    let dataSize = rv in
+    st_g := lp (! st_g) (List.Cons (!_r) (List.Cons (length) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+    st_g := (zero_memory_chunk_t_address (! st_g)dataStart dataSize); 
+    let rv = ur (! st_g) in 
+    ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function write_to_memory_t_address (st_c: evmState)  (memPtr: int)  (value: int) : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+    st_g := (cleanup_t_address  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+    st_g := lp (! st_g) (List.Cons (memPtr) (List.Cons (    rv
+) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+    ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function update_storage_value_t_address (st_c: evmState)  (slot: int)  (offset: int)  (value: int) : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (slot) List.Nil); 
+    st_g := Why3Inst.sload (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp1 = rv in
+        st_g := (prepare_store_t_address  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+
+    let tp2 = rv in
+        st_g := (update_byte_slice_dynamic20  (! st_g) (tp1) offset (tp2)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+    st_g := lp (! st_g) (List.Cons (slot) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.sstore (! st_g); 
+    let rv = ur (! st_g) in 
+    ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function update_storage_value_offset_0t_uint256 (st_c: evmState)  (slot: int)  (value: int) : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (slot) List.Nil); 
+    st_g := Why3Inst.sload (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp1 = rv in
+        st_g := (prepare_store_t_address  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+
+    let tp2 = rv in
+        st_g := (update_byte_slice_20_shift_0  (! st_g) (tp1) (tp2)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+    st_g := lp (! st_g) (List.Cons (slot) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.sstore (! st_g); 
+    let rv = ur (! st_g) in 
+    ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function update_storage_value_offset_0t_address (st_c: evmState)  (slot: int)  (value: int) : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (slot) List.Nil); 
+    st_g := Why3Inst.sload (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp1 = rv in
+        st_g := (prepare_store_t_address  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+
+    let tp2 = rv in
+        st_g := (update_byte_slice_20_shift_0  (! st_g) (tp1) (tp2)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+    st_g := lp (! st_g) (List.Cons (slot) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.sstore (! st_g); 
+    let rv = ur (! st_g) in 
+    ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function read_from_storage_offset_0_t_uint256 (st_c: evmState)  (slot: int) : evmState
+  requires { 0 <= slot <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (slot) List.Nil); 
+    st_g := Why3Inst.sload (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := (extract_from_storage_value_offset_0t_uint256  (! st_g) (tp)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function read_from_storage_offset_0_t_address (st_c: evmState)  (slot: int) : evmState
+  requires { 0 <= slot <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := lp (! st_g) (List.Cons (slot) List.Nil); 
+    st_g := Why3Inst.sload (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+        st_g := (extract_from_storage_value_offset_0t_address  (! st_g) (tp)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function convert_t_uint160_to_t_address (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (convert_t_uint160_to_t_uint160  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function storage_set_to_zero_t_address (st_c: evmState)  (slot: int)  (offset: int) : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (zero_value_for_split_t_address  (! st_g) ); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+    st_g := (update_storage_value_t_address (! st_g)slot offset tp); 
+    let rv = ur (! st_g) in 
+    ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function convert_t_address_to_t_address (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (convert_t_uint160_to_t_address  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function convert_t_address_payable_to_t_address (st_c: evmState)  (value: int) : evmState
+  requires { 0 <= value <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (convert_t_uint160_to_t_address  (! st_g) (value)); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function mapping_index_access_t_mapping__t_address___t_uint256___of_t_address_payable (st_c: evmState)  (slot: int)  (key: int) : evmState
+  requires { 0 <= slot <= 255 }
+  requires { 0 <= key <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+     st_g := (convert_t_address_payable_to_t_address  (! st_g) (key)); 
+    let rv = ur (! st_g) in 
+    st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (   rv
+) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+    st_g := lp (! st_g) (List.Cons (0x20) (List.Cons (slot) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (0x40) List.Nil)); 
+    st_g := Why3Inst.keccak256 (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function mapping_index_access_t_mapping__t_address___t_uint256___of_t_address (st_c: evmState)  (slot: int)  (key: int) : evmState
+  requires { 0 <= slot <= 255 }
+  requires { 0 <= key <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (convert_t_address_to_t_address  (! st_g) (key)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+    st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+    st_g := lp (! st_g) (List.Cons (0x20) (List.Cons (slot) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (0x40) List.Nil)); 
+    st_g := Why3Inst.keccak256 (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable (st_c: evmState)  (slot: int)  (key: int) : evmState
+  requires { 0 <= slot <= 255 }
+  requires { 0 <= key <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (convert_t_address_payable_to_t_address  (! st_g) (key)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+    st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+    st_g := lp (! st_g) (List.Cons (0x20) (List.Cons (slot) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (0x40) List.Nil)); 
+    st_g := Why3Inst.keccak256 (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function mapping_index_access_t_mapping__t_address___t_address___of_t_address (st_c: evmState)  (slot: int)  (key: int) : evmState
+  requires { 0 <= slot <= 255 }
+  requires { 0 <= key <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        st_g := (convert_t_address_to_t_address  (! st_g) (key)); 
+    let rv = ur (! st_g) in 
+
+    let tp = rv in
+    st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (tp) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+    st_g := lp (! st_g) (List.Cons (0x20) (List.Cons (slot) List.Nil)); 
+    st_g := Why3Inst.mstore (! st_g); 
+    let rv = ur (! st_g) in 
+
+        st_g := lp (! st_g) (List.Cons (bvconstzero) (List.Cons (0x40) List.Nil)); 
+    st_g := Why3Inst.keccak256 (! st_g); 
+    let rv = ur (! st_g) in 
+
+    _r := rv;
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function fun_topStakers_234 (st_c: evmState)  (vloc_count_179: int) : evmState
+  requires { 0 <= vloc_count_179 <= 255 }
+  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+    st_g := (zero_value_for_split_t_array__t_address__dyn_memory_ptr  (! st_g) ); 
+    let rv = ur (! st_g) in 
+
+    let zero_value_for_type_t_array__t_address__dyn_memory_ptr_59_mpos = rv in
+    let rv = zero_value_for_type_t_array__t_address__dyn_memory_ptr_59_mpos in
+    _r := rv;
+    let rv = vloc_count_179 in
+    let _60 = rv in
+    let rv = _60 in
+    let expr_193 = rv in
+    st_g := (allocate_and_zero_memory_array_t_array__t_address__dyn_memory_ptr  (! st_g) (expr_193)); 
+    let rv = ur (! st_g) in 
+
+    let expr_194_mpos = rv in
+    let rv = expr_194_mpos in
+    let vloc_stakerList_189_mpos = rv in
+    let rv = 0x00 in
+    let expr_198 = rv in
+    let rv = (expr_198) in
+
+    let vloc_stakerCounter_197 = rv in
+      
+                let rv = 0x03 in
+        let _61 = rv in
+                let rv = _61 in
+        let expr_202 = rv in
+                        st_g := (read_from_storage_offset_0_t_address  (! st_g) (0x00)); 
+        let rv = ur (! st_g) in 
+
+        let _62 = rv in
+                let rv = _62 in
+        let expr_203 = rv in
+                        st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address  (! st_g) (expr_202) (expr_203)); 
+        let rv = ur (! st_g) in 
+
+        let _63 = rv in
+                        st_g := (read_from_storage_offset_0_t_address  (! st_g) (_63)); 
+        let rv = ur (! st_g) in 
+
+        let _64 = rv in
+                let rv = _64 in
+        let expr_204 = rv in
+              let rv = expr_204 in
+      let vloc_x_201 = rv in
+    let rv = 1 in
+      (while not i2b rv 
+       do
+        variant {true} 
+        
+                    let rv = vloc_x_201 in
+          let _69 = rv in
+                    let rv = _69 in
+          let expr_206 = rv in
+                              st_g := (read_from_storage_offset_0_t_address  (! st_g) (0x01)); 
+          let rv = ur (! st_g) in 
+
+          let _70 = rv in
+                    let rv = _70 in
+          let expr_207 = rv in
+          st_g := lp (! st_g) (List.Cons (expr_206) (List.Cons (expr_207) List.Nil)); 
+          st_g := Why3Inst.eq (! st_g); 
+          let rv = ur (! st_g) in 
+                              st_g := lp (! st_g) (List.Cons (          rv
+) List.Nil); 
+          st_g := Why3Inst.iszero (! st_g); 
+          let rv = ur (! st_g) in 
+
+          let expr_208 = rv in
+                    let rv = expr_208 in
+          let expr_212 = rv in
+          let rv = expr_212 in
+          (if i2b rv 
+          then
+            (
+                            let rv = vloc_stakerCounter_197 in
+              let _71 = rv in
+                            let rv = _71 in
+              let expr_209 = rv in
+                            let rv = vloc_count_179 in
+              let _72 = rv in
+                            let rv = _72 in
+              let expr_210 = rv in
+                                          st_g := lp (! st_g) (List.Cons (expr_209) (List.Cons (expr_210) List.Nil)); 
+              st_g := Why3Inst.lt (! st_g); 
+              let rv = ur (! st_g) in 
+
+              let expr_211 = rv in
+              let rv = expr_211 in
+              let expr_212 = rv in ();            ); );
+
+                    st_g := lp (! st_g) (List.Cons (expr_212) List.Nil); 
+          st_g := Why3Inst.iszero (! st_g); 
+          let rv = ur (! st_g) in 
+
+          (if i2b rv 
+          then
+            (
+              break            ); );
+
+                    let rv = vloc_x_201 in
+          let _73 = rv in
+                    let rv = _73 in
+          let expr_222 = rv in
+                    let rv = vloc_stakerList_189_mpos in
+          let _74_mpos = rv in
+                    let rv = _74_mpos in
+          let expr_219_mpos = rv in
+                    let rv = vloc_stakerCounter_197 in
+          let _75 = rv in
+                    let rv = _75 in
+          let expr_220 = rv in
+                    let rv = expr_222 in
+          let _76 = rv in
+          st_g := (memory_array_index_access_t_array__t_address__dyn_memory_ptr  (! st_g) (expr_219_mpos) (expr_220));
+          let rv = ur (! st_g) in 
+
+          st_g := (write_to_memory_t_address (! st_g)   rv _76       ); 
+          let rv = ur (! st_g) in 
+
+          
+                    let rv = expr_222 in
+          let expr_223 = rv in
+                    let rv = 0x01 in
+          let expr_226 = rv in
+                              let rv = (expr_226) in
+
+          let _77 = rv in
+                    let rv = vloc_stakerCounter_197 in
+          let _78 = rv in
+                    st_g := lp (! st_g) (List.Cons (_78) (List.Cons (_77) List.Nil)); 
+          st_g := Why3Inst.add (! st_g); 
+          let rv = ur (! st_g) in 
+          assert { 0 <= rv <= 255 };
+
+          let _77 = rv in
+          let rv = _77 in
+          let vloc_stakerCounter_197 = rv in
+                  let rv = _77 in
+        let expr_227 = rv in
+        
+                    let rv = 0x03 in
+          let _65 = rv in
+                    let rv = _65 in
+          let expr_214 = rv in
+                    let rv = vloc_x_201 in
+          let _66 = rv in
+                    let rv = _66 in
+          let expr_215 = rv in
+                              st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address  (! st_g) (expr_214) (expr_215)); 
+          let rv = ur (! st_g) in 
+
+          let _67 = rv in
+                              st_g := (read_from_storage_offset_0_t_address  (! st_g) (_67)); 
+          let rv = ur (! st_g) in 
+
+          let _68 = rv in
+                    let rv = _68 in
+          let expr_216 = rv in
+          let rv = expr_216 in
+          let vloc_x_201 = rv in
+                  let rv = expr_216 in
+        let expr_217 = rv in ();       
+      done);
+
+        let rv = vloc_stakerList_189_mpos in
+    let _79_mpos = rv in
+        let rv = _79_mpos in
+    let expr_231_mpos = rv in
+    let rv = expr_231_mpos in
+    _r := rv;
+    raise Ret
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let rec ghost function fun__rebalanceStakers_177 (st_c: evmState)  : evmState  =
+    variant {false}
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        let rv = 0x03 in
+    let _15 = rv in
+        let rv = _15 in
+    let expr_71 = rv in
+            st_g := lp (! st_g)  List.Nil; 
+    st_g := Why3Inst.caller (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let expr_73 = rv in
+            st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable  (! st_g) (expr_71) (expr_73)); 
+    let rv = ur (! st_g) in 
+
+    let _16 = rv in
+            st_g := (read_from_storage_offset_0_t_address  (! st_g) (_16)); 
+    let rv = ur (! st_g) in 
+
+    let _17 = rv in
+        let rv = _17 in
+    let expr_74 = rv in
+        let rv = 0x00 in
+    let expr_77 = rv in
+            let rv = (expr_77) in
+
+    let expr_78 = rv in
+    st_g := (convert_t_address_payable_to_t_address  (! st_g) (expr_78)); 
+    let rv = ur (! st_g) in 
+            st_g := lp (! st_g) (List.Cons (expr_74) (List.Cons (    rv
+) List.Nil)); 
+    st_g := Why3Inst.eq (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let expr_79 = rv in
+    let rv = expr_79 in
+      (match rv with 
+      | bvconstzero -> 
+        (
+                    let rv = 0x03 in
+          let _18 = rv in
+                    let rv = _18 in
+          let expr_153 = rv in
+                              st_g := lp (! st_g)  List.Nil; 
+          st_g := Why3Inst.caller (! st_g); 
+          let rv = ur (! st_g) in 
+
+          let expr_155 = rv in
+                              st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable  (! st_g) (expr_153) (expr_155)); 
+          let rv = ur (! st_g) in 
+
+          let _19 = rv in
+                              st_g := (read_from_storage_offset_0_t_address  (! st_g) (_19)); 
+          let rv = ur (! st_g) in 
+
+          let _20 = rv in
+                    let rv = _20 in
+          let expr_156 = rv in
+                    let rv = 0x03 in
+          let _21 = rv in
+                    let rv = _21 in
+          let expr_147 = rv in
+                    let rv = 0x02 in
+          let _22 = rv in
+                    let rv = _22 in
+          let expr_148 = rv in
+                              st_g := lp (! st_g)  List.Nil; 
+          st_g := Why3Inst.caller (! st_g); 
+          let rv = ur (! st_g) in 
+
+          let expr_150 = rv in
+                              st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable  (! st_g) (expr_148) (expr_150)); 
+          let rv = ur (! st_g) in 
+
+          let _23 = rv in
+                              st_g := (read_from_storage_offset_0_t_address  (! st_g) (_23)); 
+          let rv = ur (! st_g) in 
+
+          let _24 = rv in
+                    let rv = _24 in
+          let expr_151 = rv in
+                              st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address  (! st_g) (expr_147) (expr_151)); 
+          let rv = ur (! st_g) in 
+
+          let _25 = rv in
+          st_g := (update_storage_value_offset_0t_address (! st_g)_25 expr_156); 
+          let rv = ur (! st_g) in 
+
+                    let rv = expr_156 in
+          let expr_157 = rv in
+                    let rv = 0x03 in
+          let _26 = rv in
+                    let rv = _26 in
+          let expr_159 = rv in
+                              st_g := lp (! st_g)  List.Nil; 
+          st_g := Why3Inst.caller (! st_g); 
+          let rv = ur (! st_g) in 
+
+          let expr_161 = rv in
+                              st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable  (! st_g) (expr_159) (expr_161)); 
+          let rv = ur (! st_g) in 
+
+          let _27 = rv in
+          st_g := (storage_set_to_zero_t_address (! st_g)_27 bvconstzero); 
+          let rv = ur (! st_g) in 
+
+                    let rv = 0x02 in
+          let _28 = rv in
+                    let rv = _28 in
+          let expr_165 = rv in
+                              st_g := lp (! st_g)  List.Nil; 
+          st_g := Why3Inst.caller (! st_g); 
+          let rv = ur (! st_g) in 
+
+          let expr_167 = rv in
+                              st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable  (! st_g) (expr_165) (expr_167)); 
+          let rv = ur (! st_g) in 
+
+          let _29 = rv in
+          st_g := (storage_set_to_zero_t_address (! st_g)_29 bvconstzero); 
+          let rv = ur (! st_g) in 
+
+                    let rv = 177 in
+          let expr_171_functionIdentifier = rv in
+          st_g := (fun__rebalanceStakers_177 (! st_g)); 
+          let rv = ur (! st_g) in ();
+        ); 
+      | _ -> 
+        (
+                    let rv = 0x02 in
+          let _30 = rv in
+                    let rv = _30 in
+          let expr_81 = rv in
+                              st_g := lp (! st_g)  List.Nil; 
+          st_g := Why3Inst.caller (! st_g); 
+          let rv = ur (! st_g) in 
+
+          let expr_83 = rv in
+                              st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable  (! st_g) (expr_81) (expr_83)); 
+          let rv = ur (! st_g) in 
+
+          let _31 = rv in
+                              st_g := (read_from_storage_offset_0_t_address  (! st_g) (_31)); 
+          let rv = ur (! st_g) in 
+
+          let _32 = rv in
+                    let rv = _32 in
+          let expr_84 = rv in
+                    let rv = 0x00 in
+          let expr_87 = rv in
+                              let rv = (expr_87) in
+
+          let expr_88 = rv in
+          st_g := (convert_t_address_payable_to_t_address  (! st_g) (expr_88)); 
+          let rv = ur (! st_g) in 
+                              st_g := lp (! st_g) (List.Cons (expr_84) (List.Cons (          rv
+) List.Nil)); 
+          st_g := Why3Inst.eq (! st_g); 
+          let rv = ur (! st_g) in 
+
+          let expr_89 = rv in
+
+          assume { i2b (expr_89) };
+                              st_g := (read_from_storage_offset_0_t_address  (! st_g) (0x00)); 
+          let rv = ur (! st_g) in 
+
+          let _33 = rv in
+                    let rv = _33 in
+          let expr_94 = rv in
+                    let rv = expr_94 in
+          let vloc_prevStaker_93 = rv in
+              let vloc_x_97 = 12828 in
+                                          st_g := (zero_value_for_split_t_address  (! st_g) ); 
+              let rv = ur (! st_g) in 
+
+              let zero_value_for_type_t_address_34 = rv in
+              let rv = zero_value_for_type_t_address_34 in
+              let vloc_x_97 = rv in 
+          let rv = 1 in
+            (while not i2b rv 
+             do
+              variant {false} 
+              (
+                                let rv = vloc_x_97 in
+                let _36 = rv in
+                                let rv = _36 in
+                let expr_99 = rv in
+                                                st_g := (read_from_storage_offset_0_t_address  (! st_g) (0x01)); 
+                let rv = ur (! st_g) in 
+
+                let _37 = rv in
+                                let rv = _37 in
+                let expr_100 = rv in
+                st_g := lp (! st_g) (List.Cons (expr_99) (List.Cons (expr_100) List.Nil)); 
+                st_g := Why3Inst.eq (! st_g); 
+                let rv = ur (! st_g) in 
+                                                st_g := lp (! st_g) (List.Cons (                rv
+) List.Nil); 
+                st_g := Why3Inst.iszero (! st_g); 
+                let rv = ur (! st_g) in 
+
+                let expr_101 = rv in
+                                st_g := lp (! st_g) (List.Cons (expr_101) List.Nil); 
+                st_g := Why3Inst.iszero (! st_g); 
+                let rv = ur (! st_g) in 
+
+                (if i2b rv 
+                then
+                  (
+                    break                  ); );
+
+                                let rv = 0x03 in
+                let _38 = rv in
+                                let rv = _38 in
+                let expr_107 = rv in
+                                let rv = vloc_prevStaker_93 in
+                let _39 = rv in
+                                let rv = _39 in
+                let expr_108 = rv in
+                                                st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address  (! st_g) (expr_107) (expr_108)); 
+                let rv = ur (! st_g) in 
+
+                let _40 = rv in
+                                                st_g := (read_from_storage_offset_0_t_address  (! st_g) (_40)); 
+                let rv = ur (! st_g) in 
+
+                let _41 = rv in
+                                let rv = _41 in
+                let expr_109 = rv in
+                let rv = expr_109 in
+                let vloc_x_97 = rv in
+                                let rv = expr_109 in
+                let expr_110 = rv in
+                                let rv = 0x04 in
+                let _42 = rv in
+                                let rv = _42 in
+                let expr_112 = rv in
+                                let rv = vloc_x_97 in
+                let _43 = rv in
+                                let rv = _43 in
+                let expr_113 = rv in
+                                                st_g := (mapping_index_access_t_mapping__t_address___t_uint256___of_t_address  (! st_g) (expr_112) (expr_113)); 
+                let rv = ur (! st_g) in 
+
+                let _44 = rv in
+                                                st_g := (read_from_storage_offset_0_t_uint256  (! st_g) (_44)); 
+                let rv = ur (! st_g) in 
+
+                let _45 = rv in
+                                let rv = _45 in
+                let expr_114 = rv in
+                                let rv = 0x04 in
+                let _46 = rv in
+                                let rv = _46 in
+                let expr_115 = rv in
+                                                st_g := lp (! st_g)  List.Nil; 
+                st_g := Why3Inst.caller (! st_g); 
+                let rv = ur (! st_g) in 
+
+                let expr_117 = rv in
+                                                st_g := (mapping_index_access_t_mapping__t_address___t_uint256___of_t_address_payable  (! st_g) (expr_115) (expr_117)); 
+                let rv = ur (! st_g) in 
+
+                let _47 = rv in
+                                                st_g := (read_from_storage_offset_0_t_uint256  (! st_g) (_47)); 
+                let rv = ur (! st_g) in 
+
+                let _48 = rv in
+                                let rv = _48 in
+                let expr_118 = rv in
+                                                st_g := lp (! st_g) (List.Cons (expr_114) (List.Cons (expr_118) List.Nil)); 
+                st_g := Why3Inst.lt (! st_g); 
+                let rv = ur (! st_g) in 
+
+                let expr_119 = rv in
+                let rv = expr_119 in
+                (if i2b rv 
+                then
+                  (
+                                                            st_g := lp (! st_g)  List.Nil; 
+                    st_g := Why3Inst.caller (! st_g); 
+                    let rv = ur (! st_g) in 
+
+                    let expr_124 = rv in
+                                                            st_g := (convert_t_address_payable_to_t_address  (! st_g) (expr_124)); 
+                    let rv = ur (! st_g) in 
+
+                    let _49 = rv in
+                                        let rv = 0x03 in
+                    let _50 = rv in
+                                        let rv = _50 in
+                    let expr_120 = rv in
+                                        let rv = vloc_prevStaker_93 in
+                    let _51 = rv in
+                                        let rv = _51 in
+                    let expr_121 = rv in
+                                                            st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address  (! st_g) (expr_120) (expr_121)); 
+                    let rv = ur (! st_g) in 
+
+                    let _52 = rv in
+                    st_g := (update_storage_value_offset_0t_address (! st_g)_52 _49); 
+                    let rv = ur (! st_g) in 
+
+                                        let rv = _49 in
+                    let expr_125 = rv in
+                                        let rv = vloc_prevStaker_93 in
+                    let _53 = rv in
+                                        let rv = _53 in
+                    let expr_131 = rv in
+                                        let rv = 0x02 in
+                    let _54 = rv in
+                                        let rv = _54 in
+                    let expr_127 = rv in
+                                                            st_g := lp (! st_g)  List.Nil; 
+                    st_g := Why3Inst.caller (! st_g); 
+                    let rv = ur (! st_g) in 
+
+                    let expr_129 = rv in
+                                                            st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable  (! st_g) (expr_127) (expr_129)); 
+                    let rv = ur (! st_g) in 
+
+                    let _55 = rv in
+                    st_g := (update_storage_value_offset_0t_address (! st_g)_55 expr_131); 
+                    let rv = ur (! st_g) in 
+
+                                        let rv = expr_131 in
+                    let expr_132 = rv in
+                                        let rv = vloc_x_97 in
+                    let _56 = rv in
+                                        let rv = _56 in
+                    let expr_138 = rv in
+                                        let rv = 0x03 in
+                    let _57 = rv in
+                                        let rv = _57 in
+                    let expr_134 = rv in
+                                                            st_g := lp (! st_g)  List.Nil; 
+                    st_g := Why3Inst.caller (! st_g); 
+                    let rv = ur (! st_g) in 
+
+                    let expr_136 = rv in
+                                                            st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address_payable  (! st_g) (expr_134) (expr_136)); 
+                    let rv = ur (! st_g) in 
+
+                    let _58 = rv in
+                    st_g := (update_storage_value_offset_0t_address (! st_g)_58 expr_138); 
+                    let rv = ur (! st_g) in 
+
+                                        let rv = expr_138 in
+                    let expr_139 = rv in
+                    break                  ); );
+              ); 
+              (
+                                let rv = vloc_x_97 in
+                let _35 = rv in
+                                let rv = _35 in
+                let expr_103 = rv in
+                let rv = expr_103 in
+                let vloc_prevStaker_93 = rv in
+                              let rv = expr_103 in
+              let expr_104 = rv in ();              ); 
+            done);
+
+        );
+      end);
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function fun__48 (st_c: evmState)  : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+            st_g := lp (! st_g)  List.Nil; 
+    st_g := Why3Inst.caller (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let expr_32 = rv in
+            st_g := (convert_t_address_payable_to_t_address  (! st_g) (expr_32)); 
+    let rv = ur (! st_g) in 
+
+    let _1 = rv in
+    st_g := (update_storage_value_offset_0t_address (! st_g)0x05 _1); 
+    let rv = ur (! st_g) in 
+
+        let rv = _1 in
+    let expr_33 = rv in
+            st_g := (read_from_storage_offset_0_t_address  (! st_g) (0x01)); 
+    let rv = ur (! st_g) in 
+
+    let _2 = rv in
+        let rv = _2 in
+    let expr_38 = rv in
+        let rv = 0x03 in
+    let _3 = rv in
+        let rv = _3 in
+    let expr_35 = rv in
+            st_g := (read_from_storage_offset_0_t_address  (! st_g) (0x00)); 
+    let rv = ur (! st_g) in 
+
+    let _4 = rv in
+        let rv = _4 in
+    let expr_36 = rv in
+            st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address  (! st_g) (expr_35) (expr_36)); 
+    let rv = ur (! st_g) in 
+
+    let _5 = rv in
+    st_g := (update_storage_value_offset_0t_address (! st_g)_5 expr_38); 
+    let rv = ur (! st_g) in 
+
+        let rv = expr_38 in
+    let expr_39 = rv in
+            st_g := (read_from_storage_offset_0_t_address  (! st_g) (0x00)); 
+    let rv = ur (! st_g) in 
+
+    let _6 = rv in
+        let rv = _6 in
+    let expr_44 = rv in
+        let rv = 0x02 in
+    let _7 = rv in
+        let rv = _7 in
+    let expr_41 = rv in
+            st_g := (read_from_storage_offset_0_t_address  (! st_g) (0x01)); 
+    let rv = ur (! st_g) in 
+
+    let _8 = rv in
+        let rv = _8 in
+    let expr_42 = rv in
+            st_g := (mapping_index_access_t_mapping__t_address___t_address___of_t_address  (! st_g) (expr_41) (expr_42)); 
+    let rv = ur (! st_g) in 
+
+    let _9 = rv in
+    st_g := (update_storage_value_offset_0t_address (! st_g)_9 expr_44); 
+    let rv = ur (! st_g) in 
+
+        let rv = expr_44 in
+    let expr_45 = rv in ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+
+  let ghost function fun_addStake_68 (st_c: evmState)  : evmState  =
+  let _r: ref int = ref 0 in
+  let ghost st_g: ref evmState = ref st_c in
+  let bvconstzero = 0 in
+  try
+   begin
+    let return_flag = b2i false in
+        let rv = 0x04 in
+    let _10 = rv in
+        let rv = _10 in
+    let expr_55 = rv in
+            st_g := lp (! st_g)  List.Nil; 
+    st_g := Why3Inst.caller (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let expr_57 = rv in
+            st_g := (mapping_index_access_t_mapping__t_address___t_uint256___of_t_address_payable  (! st_g) (expr_55) (expr_57)); 
+    let rv = ur (! st_g) in 
+
+    let _11 = rv in
+            st_g := (read_from_storage_offset_0_t_uint256  (! st_g) (_11)); 
+    let rv = ur (! st_g) in 
+
+    let _12 = rv in
+        let rv = _12 in
+    let expr_58 = rv in
+            st_g := lp (! st_g)  List.Nil; 
+    st_g := Why3Inst.callvalue (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let expr_60 = rv in
+            st_g := lp (! st_g) (List.Cons (expr_58) (List.Cons (expr_60) List.Nil)); 
+    st_g := Why3Inst.add (! st_g); 
+    let rv = ur (! st_g) in 
+    assert { 0 <= rv <= 255 };
+
+    let expr_61 = rv in
+        let rv = 0x04 in
+    let _13 = rv in
+        let rv = _13 in
+    let expr_51 = rv in
+            st_g := lp (! st_g)  List.Nil; 
+    st_g := Why3Inst.caller (! st_g); 
+    let rv = ur (! st_g) in 
+
+    let expr_53 = rv in
+            st_g := (mapping_index_access_t_mapping__t_address___t_uint256___of_t_address_payable  (! st_g) (expr_51) (expr_53)); 
+    let rv = ur (! st_g) in 
+
+    let _14 = rv in
+    st_g := (update_storage_value_offset_0t_uint256 (! st_g)_14 expr_61); 
+    let rv = ur (! st_g) in 
+
+        let rv = expr_61 in
+    let expr_62 = rv in
+        let rv = 177 in
+    let expr_64_functionIdentifier = rv in
+    st_g := (fun__rebalanceStakers_177 (! st_g)); 
+    let rv = ur (! st_g) in 
+  ();
+   end;
+   st_g := (setRet !st_g !_r);
+   raise Ret
+  with Ret -> (! st_g) 
+  end
+  
+  axiom storage_reduce : forall st: evmState, i: int, v: int.
+    v = ur (read_from_storage_offset_0_t_uint256 (update_storage_value_offset_0t_uint256 st i v) i)
+
+end
