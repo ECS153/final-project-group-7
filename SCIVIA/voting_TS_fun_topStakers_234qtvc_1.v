@@ -1,4 +1,4 @@
-(* Beware! Only edit allowed sections below    *)
+(* Copyright@Xinyuan Sun, sxysun@ucdavis.edu   *)
 Require Import BuiltIn.
 Require BuiltIn.
 Require HighOrd.
