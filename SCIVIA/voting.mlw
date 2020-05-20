@@ -1,8 +1,8 @@
-
+(* Copyright@Xinyuan Sun, sxysun@ucdavis.edu *)
 module EVMState
 
-	use list.List
-	use why_evm.Word
+  use list.List
+  use why_evm.Word
   use why_evm.State
   use list.NthNoOpt as Nth
   use why_evm.State as Why3State
