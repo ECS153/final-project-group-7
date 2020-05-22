@@ -1,5 +1,6 @@
 from backend.chain import *
 import copy
+from itertools import product
 
 class Wallet:
     def __init__(self):
@@ -11,6 +12,8 @@ class Wallet:
         self._public_key = self._private_key.publickey()
         self._signer = PKCS1_v1_5.new(self._private_key)
         self.user_addr = binascii.hexlify(self._public_key.exportKey(format='DER')).decode('utf-8')
+
+        self.sample_sat = sample_sat()
 
     def receive_broadcast(self, message):
         parsed = message.split('$')
@@ -28,10 +31,11 @@ class Wallet:
         nonce = block["nonce"]
         """
         Only Pass UTF-8 Encoded String
-        Prepare for two parameters: miner_addr, nonce
+        Prepare for two parameters: miner_addr, (nonce, SAT-solver)
         mining_broadcast_message = "string + '$' + string " as payload
         """
-        mining_broadcast_message = self.user_addr + "$" + str(nonce)
+        self.sample_sat.solve() # Solve the NP Complete Problem to futher legitimize new block
+        mining_broadcast_message = self.user_addr + "$" + str(nonce) + '-' + self.sample_sat.answer_string
         return mining_broadcast_message
 
     def pay(self, value, receiver_addr):
@@ -55,14 +59,21 @@ class Wallet:
     def verify_new_block(self, mining_broadcast_message):
         parsed = mining_broadcast_message.split('$')
         miner_addr = parsed[0]
-        nonce = int(parsed[1])
+        nonce_and_satAnswer = parsed[1]
+
+        parsed_token = nonce_and_satAnswer.split('-')
+        nonce = int(parsed_token[0])
+        satAnswer = parsed_token[1]
 
         if miner_addr == self.user_addr or self.block_chain.verify_new_block(miner_addr, nonce):
             # Validate his own block
+            if not self.sample_sat.verify(satAnswer):
+                return "The block is invalid because of the wrong NP Complete answer!"
+
             msg = "a node has verified new block"
             return msg
 
-        return "This block is invalid!"
+        return "This block is invalid because of the wrong nonce!"
 
     def verify_transaction(self,transaction_broadcast_message):
         # Parsed the broadcast message
@@ -111,3 +122,34 @@ class Wallet:
 
     def revert(self):
         self.block_chain.revert()
+
+class sample_sat:
+    def __init__(self):
+        self.num_var = 3
+        self.answer_string = ""
+        return
+    def solve(self):
+        # import random NP Complete module here
+        # Here is just an example of SAT solver
+        for params in list(product((True, False), repeat=self.num_var)):
+            # Random Problem of SAT
+            x1 = params[0]
+            x2 = params[1]
+            x3 = params[2]
+            problem = (not x1 or x2) and (not x2 or not x3)
+            if problem == True:
+                answer_list =list(map(lambda x: int(x == True), params))
+                self.answer_string = ''.join(map(lambda x: str(x), answer_list))
+                return
+
+    def verify(self, answer_string):
+        params = []
+        for i in range(len(answer_string)):
+            params.append(answer_string[i] == '1')
+            # Random Problem of SAT
+        x1 = params[0]
+        x2 = params[1]
+        x3 = params[2]
+        problem = (not x1 or x2) and (not x2 or not x3)
+        print(params)
+        return problem
