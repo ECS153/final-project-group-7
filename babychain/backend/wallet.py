@@ -136,8 +136,8 @@ class sample_sat:
             x1 = params[0]
             x2 = params[1]
             x3 = params[2]
-            problem = (not x1 or x2) and (not x2 or not x3)
-            if problem == True:
+            problem = "(not x1 or x2) and (not x2 or not x3)"
+            if eval(problem) == True:
                 answer_list =list(map(lambda x: int(x == True), params))
                 self.answer_string = ''.join(map(lambda x: str(x), answer_list))
                 return
@@ -150,6 +150,5 @@ class sample_sat:
         x1 = params[0]
         x2 = params[1]
         x3 = params[2]
-        problem = (not x1 or x2) and (not x2 or not x3)
-        print(params)
-        return problem
+        problem = "(not x1 or x2) and (not x2 or not x3)"
+        return eval(problem)
