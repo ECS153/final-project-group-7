@@ -2,6 +2,7 @@ from backend.chain import *
 import copy
 from itertools import product
 
+
 class Wallet:
     def __init__(self):
         self.block_chain = Blockchain()
@@ -34,7 +35,7 @@ class Wallet:
         Prepare for two parameters: miner_addr, (nonce, SAT-solver)
         mining_broadcast_message = "string + '$' + string " as payload
         """
-        self.sample_sat.solve() # Solve the NP Complete Problem to futher legitimize new block
+        self.sample_sat.solve()  # Solve the NP Complete Problem to futher legitimize new block
         mining_broadcast_message = self.user_addr + "$" + str(nonce) + '-' + self.sample_sat.answer_string
         return mining_broadcast_message
 
@@ -53,7 +54,7 @@ class Wallet:
         """
         sender_public_key_string = binascii.hexlify(self._public_key.exportKey(format='DER')).decode('utf-8')
         signature_string = binascii.hexlify(signature).decode('utf-8')
-        transaction_broadcast_message = txn_message+"$"+sender_public_key_string+"$"+signature_string
+        transaction_broadcast_message = txn_message + "$" + sender_public_key_string + "$" + signature_string
         return transaction_broadcast_message
 
     def verify_new_block(self, mining_broadcast_message):
@@ -75,7 +76,7 @@ class Wallet:
 
         return "This block is invalid because of the wrong nonce!"
 
-    def verify_transaction(self,transaction_broadcast_message):
+    def verify_transaction(self, transaction_broadcast_message):
         # Parsed the broadcast message
         parsed = transaction_broadcast_message.split('$')
         txn_message = parsed[0]
@@ -123,11 +124,13 @@ class Wallet:
     def revert(self):
         self.block_chain.revert()
 
+
 class sample_sat:
     def __init__(self):
         self.num_var = 3
         self.answer_string = ""
         return
+
     def solve(self):
         # import random NP Complete module here
         # Here is just an example of SAT solver
@@ -138,7 +141,7 @@ class sample_sat:
             x3 = params[2]
             problem = "(not x1 or x2) and (not x2 or not x3)"
             if eval(problem) == True:
-                answer_list =list(map(lambda x: int(x == True), params))
+                answer_list = list(map(lambda x: int(x == True), params))
                 self.answer_string = ''.join(map(lambda x: str(x), answer_list))
                 return
 
