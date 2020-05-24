@@ -65,3 +65,23 @@ class Sat:
             return ','.join([str(literal) for literal in s.get_model()])
         else:
             return ''
+
+    @staticmethod
+    def verify(problem: str, answer: str) -> bool:
+        """
+        Verifies the answer to the SAT problem. Parameter formats are
+        defined in self.solve() and self.generate_problem().
+        """
+        # parses the problem into a 2D list
+        clauses = [clause.split('|') for clause in problem.split('&')]
+        # parses the answer into a set
+        assignments = {literal for literal in answer.split(',')}
+
+        for clause in clauses:
+            intersection = set(clause).intersection(assignments)
+            if len(intersection) == 0:
+                # none of the literals in current clause is evaluated to True
+                # the assignment failed
+                return False
+
+        return True  # none of the clauses is False, the assignment is verified
